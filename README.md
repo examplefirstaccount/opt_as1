@@ -9,7 +9,7 @@ This repository contains implementations of optimization algorithms for solving 
 **File**: `simplex.py`  
 **Main Function**: `SimplexMethod(C, A, b, eps=1e-6, minimize=False)`
 
-This assignment implements the Simplex Method to solve LPPs with inequality constraints. The function `SimplexMethod` maximizes the objective function $ z = C^T x $ subject to $ Ax \leq b $. By default, the function maximizes $ z $, but minimization can be specified using the `minimize` parameter.
+This assignment implements the Simplex Method to solve LPPs with inequality constraints. The function `SimplexMethod` maximizes the objective function $z = C^T x$ subject to $Ax \leq b$. By default, the function maximizes $z$, but minimization can be specified using the `minimize` parameter.
 
 - **Input**:
     - `C`: Coefficient vector of the objective function.
@@ -26,7 +26,7 @@ This assignment implements the Simplex Method to solve LPPs with inequality cons
 **File**: `it_point.py`  
 **Main Functions**: `interior_point(C, A, b, x, epsilon, alpha=0.5, minimize=False, max_iterations=1000)` and `SimplexMethod(C, A, b, eps=1e-6, minimize=False)`
 
-In this assignment, both the Interior-Point and Simplex methods are implemented to solve LPPs with equality constraints. The objective is to maximize $ z = C^T x $ subject to $ Ax = b $ and $ x \geq 0 $. Both functions return the optimal solution and the optimal objective function value.
+In this assignment, both the Interior-Point and Simplex methods are implemented to solve LPPs with equality constraints. The objective is to maximize $z = C^T x$ subject to $Ax = b$ and $x \geq 0$. Both functions return the optimal solution and the optimal objective function value.
 
 - **Input for `interior_point`**:
     - `C`: Coefficient vector of the objective function.
