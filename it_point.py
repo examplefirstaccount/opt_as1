@@ -41,7 +41,7 @@ def SimplexMethod(C, A, b, eps=1e-6, minimize=False):
     return solution, z
 
 
-def interior_point(C, A, b, x, epsilon, alpha=0.5, minimize=False, max_iterations=1000):
+def interior_point(C, A, b, x, epsilon, alpha=0.5, minimize=False, max_iterations=100):
     # Step 0: Convert inputs to numpy arrays and validate input parameters
     try:
         C = np.array(C, dtype=float)
@@ -85,6 +85,9 @@ def interior_point(C, A, b, x, epsilon, alpha=0.5, minimize=False, max_iteration
         cp = P @ cc
         nu = np.abs(np.min(cp))
 
+        if np.isclose(nu, 0, atol=1e-7):
+            return "The problem does not have a solution!"
+
         # Step 5: Update y and x using centering step
         y = np.ones(n) + (alpha / nu) * cp
         yy = D @ y
@@ -92,7 +95,10 @@ def interior_point(C, A, b, x, epsilon, alpha=0.5, minimize=False, max_iteration
 
         # Step 6: Check for convergence
         if np.linalg.norm(yy - v, ord=2) < epsilon:
-            return x
+            z = C @ yy
+            if minimize:
+                z = -z
+            return x, z
 
         i += 1
 
@@ -130,11 +136,11 @@ TESTS = [
         []
     ),
     (
-        [-5, 4, 3, 7, -2],
-        [[3, 2, 1, 0, 4], [0, 5, 3, 6, 1], [2, 0, 4, 1, 5], [7, 3, 6, 2, 2]],
-        [25, 30, 20, 40],
-        True,
-        []
+        [1, 1],
+        [[1, -1], [-1, -1]],
+        [1, -2],
+        False,
+        [3, 3, 1, 4]
     )
 ]
 
@@ -158,6 +164,18 @@ def clean_solution(x, threshold=1e-4, decimals=3):
     return x
 
 
+def extract_answer(result: tuple | str) -> str:
+    if isinstance(result, str):
+        return result
+    elif isinstance(result, tuple):
+        solution, z_value = result
+        solution = clean_solution(solution)
+        z_value = np.round(z_value, 3)
+        return f"X={solution}   z={z_value}"
+    else:
+        return "Unexpected result obtained"
+
+
 def run_tests(epsilon=1e-4):
     for i in range(len(TESTS)):
         C, A, b, minimize, x_init = TESTS[i]
@@ -165,24 +183,17 @@ def run_tests(epsilon=1e-4):
 
         simplex_result = SimplexMethod(C_eq, A_eq, b_eq, eps=epsilon, minimize=minimize)
 
-        if isinstance(simplex_result, str):
-            simplex_answer = simplex_result
-        else:
-            simplex_answer, simplex_z = simplex_result
-
         if x_init:
             ip_result_alpha_05 = interior_point(C_eq, A_eq, b_eq, x_init, epsilon, alpha=0.5, minimize=minimize)
             ip_result_alpha_09 = interior_point(C_eq, A_eq, b_eq, x_init, epsilon, alpha=0.9, minimize=minimize)
-            ip_result_alpha_05 = clean_solution(ip_result_alpha_05)
-            ip_result_alpha_09 = clean_solution(ip_result_alpha_09)
         else:
             ip_result_alpha_05 = "PROVIDE INITIAL SOLUTION"
             ip_result_alpha_09 = "PROVIDE INITIAL SOLUTION"
 
         print(f"Results for Test {i+1}:")
-        print(f"  Simplex Result:                    {simplex_answer}")
-        print(f"  Interior-Point (alpha=0.5) Result: {ip_result_alpha_05}")
-        print(f"  Interior-Point (alpha=0.9) Result: {ip_result_alpha_09}")
+        print(f"  Simplex Result:                     {extract_answer(simplex_result)}")
+        print(f"  Interior-Point (alpha=0.5) Result:  {extract_answer(ip_result_alpha_05)}")
+        print(f"  Interior-Point (alpha=0.9) Result:  {extract_answer(ip_result_alpha_09)}")
         print()
 
 
