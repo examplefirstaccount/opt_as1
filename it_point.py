@@ -105,7 +105,6 @@ def interior_point(C, A, b, x, epsilon, alpha=0.5, minimize=False, max_iteration
     return "The problem does not have a solution!"
 
 
-# TODO: Add initial feasible solution to all tests
 TESTS = [
     (
         [2, 3, 4],  # C
@@ -129,11 +128,11 @@ TESTS = [
         [1, 1, 8, 3]
     ),
     (
-        [1, 1],
-        [[1, -1], [-1, -1], [2, 1]],
-        [1, -2, 3],
+        [5, -3, 4],
+        [[3, 2, 1], [2, -6, 7], [1, 4, 1]],
+        [30, 58, 14],
         False,
-        []
+        [1, 1, 1, 24, 55, 8]
     ),
     (
         [1, 1],
@@ -158,7 +157,7 @@ def convert_to_equality(C, A, b):
     return A_eq, b, C_eq
 
 
-def clean_solution(x, threshold=1e-4, decimals=3):
+def clean_solution(x, threshold=1e-4, decimals=2):
     x = np.where(np.abs(x) < threshold, 0, x)
     x = np.round(x, decimals)
     return x
@@ -170,25 +169,20 @@ def extract_answer(result: tuple | str) -> str:
     elif isinstance(result, tuple):
         solution, z_value = result
         solution = clean_solution(solution)
-        z_value = np.round(z_value, 3)
+        z_value = np.round(z_value, 2)
         return f"X={solution}   z={z_value}"
     else:
         return "Unexpected result obtained"
 
 
-def run_tests(epsilon=1e-4):
+def run_tests(epsilon=1e-2):
     for i in range(len(TESTS)):
         C, A, b, minimize, x_init = TESTS[i]
         A_eq, b_eq, C_eq = convert_to_equality(C, A, b)
 
         simplex_result = SimplexMethod(C_eq, A_eq, b_eq, eps=epsilon, minimize=minimize)
-
-        if x_init:
-            ip_result_alpha_05 = interior_point(C_eq, A_eq, b_eq, x_init, epsilon, alpha=0.5, minimize=minimize)
-            ip_result_alpha_09 = interior_point(C_eq, A_eq, b_eq, x_init, epsilon, alpha=0.9, minimize=minimize)
-        else:
-            ip_result_alpha_05 = "PROVIDE INITIAL SOLUTION"
-            ip_result_alpha_09 = "PROVIDE INITIAL SOLUTION"
+        ip_result_alpha_05 = interior_point(C_eq, A_eq, b_eq, x_init, epsilon, alpha=0.5, minimize=minimize)
+        ip_result_alpha_09 = interior_point(C_eq, A_eq, b_eq, x_init, epsilon, alpha=0.9, minimize=minimize)
 
         print(f"Results for Test {i+1}:")
         print(f"  Simplex Result:                     {extract_answer(simplex_result)}")
